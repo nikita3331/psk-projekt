@@ -59,27 +59,49 @@ def dopasuj():
   startowa_old=[ 0.1,0.1,6]
   fit=fmin(squares,startowa_old,maxiter=10000)
   return fit
-
+def wyswietlCzestotliwosci(funk):
+  w, mag, phase = funk.bode()
+  plt.figure()
+  plt.title('Amplitudowy')
+  plt.semilogx(w, mag)    # Bode magnitude plot
+  plt.ylabel('Amplituda')
+  plt.xlabel('w rad/s')
+  plt.legend()
+  plt.figure()
+  plt.semilogx(w, phase)  # Bode phase plot
+  plt.title('Fazowy')
+  plt.ylabel('Faza')
+  plt.xlabel('w rad/s')
+  plt.legend()
+  plt.show()
+def wyswietlModelDane():
+  plt.plot(nowet,nowey,label='Dane')
+  przesuniete_t=[]
+  for i in nowet:
+    przesuniete_t.append(i-0.005)
+  plt.plot(przesuniete_t,wynikowe,label='Model')
+  plt.title('Liczba próbek pomiarowych=20')
+  plt.ylabel('G(t) [V/V]')
+  plt.xlabel('t [s]')
+  plt.legend()
+  plt.show()
+def wyswietlSkokowa(funk):
+  t_n,y_n=signal.dstep(funk, n=40)
+  y_n=np.squeeze(y_n)
+  plt.plot(t_n,y_n)
+  plt.show()
+  pprint.pprint(funk._as_ss())
+  pprint.pprint(funk._as_zpk())
 fitted=dopasuj()
 wynikowe=stworzTeorie(fitted)
 print('omega_n = ',fitted[0],'dzeta = ',fitted[1],'k = ',fitted[2])
-
-
-plt.plot(nowet,nowey,label='Dane')
-przesuniete_t=[]
-for i in nowet:
-  przesuniete_t.append(i-0.005)
-plt.plot(przesuniete_t,wynikowe,label='Model')
-plt.title('Liczba próbek pomiarowych=20')
-plt.ylabel('G(t) [V/V]')
-plt.xlabel('t [s]')
-plt.legend()
-plt.show()
-
+# wyswietlModelDane()
 funkcja=signal.dlti([fitted[0]*fitted[0]*fitted[2]], [1,2*fitted[0]*fitted[1], fitted[0]*fitted[0]], dt=0.005)
-t_n,y_n=signal.dstep(funkcja, n=40)
-y_n=np.squeeze(y_n)
-plt.plot(t_n,y_n)
+#wyswietlSkokowa(funkcja)
+
+w, H = signal.dfreqresp(funkcja)
+plt.figure()
+plt.title('Charakterystyka Nyquista')
+plt.plot(H.real, H.imag, "b")
+plt.plot(H.real, -H.imag, "r")
 plt.show()
-#pprint.pprint(funkcja._as_ss())
-pprint.pprint(funkcja._as_zpk())
