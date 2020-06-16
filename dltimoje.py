@@ -99,9 +99,23 @@ print('omega_n = ',fitted[0],'dzeta = ',fitted[1],'k = ',fitted[2])
 funkcja=signal.dlti([fitted[0]*fitted[0]*fitted[2]], [1,2*fitted[0]*fitted[1], fitted[0]*fitted[0]], dt=0.005)
 #wyswietlSkokowa(funkcja)
 
-w, H = signal.dfreqresp(funkcja)
+
+t_n,y_n=signal.dimpulse(funkcja, n=20)
+y_n=np.squeeze(y_n)
+Y_skok    = np.fft.fft(y_n)
+freq_skok = np.fft.fftfreq(len(y_n), t_n[1] - t_n[0])
+print(freq_skok)
+
 plt.figure()
-plt.title('Charakterystyka Nyquista')
-plt.plot(H.real, H.imag, "b")
-plt.plot(H.real, -H.imag, "r")
+plt.plot( freq_skok, np.abs(Y_skok) )
+plt.title('Amplitudowa')
+plt.ylabel('|S[n]|')
+plt.xlabel('n')
+plt.figure()
+plt.scatter(freq_skok, np.angle(Y_skok) )
+plt.title('Fazowa')
+plt.ylabel('fi S[n]')
+plt.xlabel('n')
 plt.show()
+
+
